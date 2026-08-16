@@ -1,20 +1,12 @@
 import { useState } from "react";
 
-export default function App() {
+function useGeolocation() {
   const [isLoading, setIsLoading] = useState(false);
-  const [countClicks, setCountClicks] = useState(0);
   const [position, setPosition] = useState(null);
   const [error, setError] = useState(null);
 
-  // Selected map provider
-  const [mapProvider, setMapProvider] = useState("osm");
-
-  const lat = position?.lat;
-  const lng = position?.lng;
-
   function getPosition() {
     setError(null);
-    setCountClicks((count) => count + 1);
 
     if (!navigator.geolocation) {
       setError("Your browser does not support geolocation.");
@@ -62,6 +54,28 @@ export default function App() {
     );
   }
 
+  return {
+    isLoading,
+    position,
+    error,
+    getPosition,
+  };
+}
+
+export default function App() {
+  const { isLoading, position, error, getPosition } = useGeolocation();
+
+  const [countClicks, setCountClicks] = useState(0);
+  const [mapProvider, setMapProvider] = useState("osm");
+
+  const lat = position?.lat;
+  const lng = position?.lng;
+
+  function handleClick() {
+    setCountClicks((count) => count + 1);
+    getPosition();
+  }
+
   const mapUrl =
     lat !== undefined && lng !== undefined
       ? mapProvider === "google"
@@ -95,7 +109,7 @@ export default function App() {
         </label>
       </div>
 
-      <button onClick={getPosition} disabled={isLoading}>
+      <button onClick={handleClick} disabled={isLoading}>
         {isLoading ? "Getting position..." : "Get my position"}
       </button>
 
