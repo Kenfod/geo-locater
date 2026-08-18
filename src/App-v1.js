@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./index.css";
 
 function useGeolocation() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,24 +21,29 @@ function useGeolocation() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         });
+
         setIsLoading(false);
       },
       (error) => {
         switch (error.code) {
           case 1:
             setError(
-              "Location access was denied. Please reset browser permissions.",
+              "Location access was denied.Please reset browser permissions.",
             );
             break;
+
           case 2:
             setError("Your location could not be determined.");
             break;
+
           case 3:
             setError("Location request timed out.");
             break;
+
           default:
             setError("Unable to determine your location.");
         }
+
         setIsLoading(false);
       },
       {
@@ -50,11 +54,17 @@ function useGeolocation() {
     );
   }
 
-  return { isLoading, position, error, getPosition };
+  return {
+    isLoading,
+    position,
+    error,
+    getPosition,
+  };
 }
 
 export default function App() {
   const { isLoading, position, error, getPosition } = useGeolocation();
+
   const [countClicks, setCountClicks] = useState(0);
   const [mapProvider, setMapProvider] = useState("osm");
 
@@ -74,12 +84,9 @@ export default function App() {
       : "";
 
   return (
-    <div className="app-container">
-      <h1 className="app-title">Geo-Locator</h1>
-
-      {/* Styled Map Toggle Row */}
-      <div className="provider-toggle-group">
-        <label className="provider-label">
+    <div>
+      <div style={{ marginBottom: "15px" }}>
+        <label style={{ marginRight: "15px" }}>
           <input
             type="radio"
             name="provider"
@@ -90,7 +97,7 @@ export default function App() {
           OpenStreetMap
         </label>
 
-        <label className="provider-label">
+        <label>
           <input
             type="radio"
             name="provider"
@@ -102,40 +109,25 @@ export default function App() {
         </label>
       </div>
 
-      {/* Styled Interactive Action Button */}
-      <button
-        className="action-button"
-        onClick={handleClick}
-        disabled={isLoading}
-      >
+      <button onClick={handleClick} disabled={isLoading}>
         {isLoading ? "Getting position..." : "Get my position"}
       </button>
 
-      {/* Conditional Output Cards */}
-      {isLoading && <p className="status-msg">Loading position...</p>}
+      {isLoading && <p>Loading position...</p>}
 
-      {error && <p className="status-msg error-msg">{error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {!isLoading && !error && position && (
-        <div className="success-container">
-          <p>Coordinates found successfully!</p>
-          <a
-            className="map-link"
-            target="_blank"
-            rel="noreferrer"
-            href={mapUrl}
-          >
-            Open in {mapProvider === "google" ? "Google Maps" : "OpenStreetMap"}
-            <br />
-            <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>
-              ({lat.toFixed(4)}, {lng.toFixed(4)})
-            </span>
+        <p>
+          Your GPS position:{" "}
+          <a target="_blank" rel="noreferrer" href={mapUrl}>
+            Open in {mapProvider === "google" ? "Google Maps" : "OpenStreetMap"}{" "}
+            ({lat}, {lng})
           </a>
-        </div>
+        </p>
       )}
 
-      {/* Footer Track Meta */}
-      <p className="click-counter">
+      <p style={{ marginTop: "15px" }}>
         You requested position {countClicks} times
       </p>
     </div>
